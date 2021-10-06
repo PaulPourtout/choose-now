@@ -1,5 +1,7 @@
 import {
   Button,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -24,7 +26,9 @@ export const ParamView = ({choices, handleChoicesUpdate}) => {
     setTempChoices(newChoices);
   };
   return (
-    <View style={{height: 300}}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Text>Inscris tes choix ici:</Text>
       <ScrollView>
         {tempChoices.map((choice: string, index: number) => (
@@ -43,11 +47,15 @@ export const ParamView = ({choices, handleChoicesUpdate}) => {
 
       <Button title="Ajouter un choix" onPress={addField} />
       <Button title="Enregistrer mes choix" onPress={saveChoices} />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    marginTop: 15,
+    height: 300,
+  },
   fieldContainer: {
     flexDirection: 'row',
     alignItems: 'center',

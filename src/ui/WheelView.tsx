@@ -7,17 +7,18 @@ import {
   View,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
-import Svg, {Circle, G, Text as SVGText, TextPath} from 'react-native-svg';
+import Svg, {Circle, G, Text as SVGText} from 'react-native-svg';
+import {PinIcon} from './PinIcon';
 
 const WHEEL_COLORS = [
-  '#FF4848',
-  '#FFF5B7',
-  '#C2FFD9',
+  '#F9B208',
+  '#FFD371',
+  '#9DDAC6',
   '#FF449F',
   '#005F99',
   '#9DDAC6',
   '#FFD371',
-  '#FF4848',
+  '#F9B208',
   '#FFF5B7',
   '#C2FFD9',
   '#FF449F',
@@ -29,7 +30,7 @@ const WHEEL_COLORS = [
 export const WheelView = ({choices}) => {
   const size = 32;
   const center = size / 2;
-  const strokeWidth = center;
+  const strokeWidth = center - 2;
   const radius = center - strokeWidth / 2;
   const circumference = 2 * Math.PI * radius;
   const circlePercentage = (1 / choices.length) * 100;
@@ -52,7 +53,7 @@ export const WheelView = ({choices}) => {
 
   const handleAnimation = (toValue: number) => {
     Animated.timing(rotateAnimation.current, {
-      toValue: toValue / 100,
+      toValue: toValue / 100 + 10,
       duration: 5000,
       easing: Easing.out(Easing.exp),
       useNativeDriver: true,
@@ -77,15 +78,6 @@ export const WheelView = ({choices}) => {
   const checkWinningChoice = (result: number): string | null => {
     const choiceSize = 100 / choices.length;
     for (let i = 0; i <= choices.length; i++) {
-      console.log({
-        choice: choices[i],
-        result,
-        index: choiceSize * i,
-        isBigger: result >= choiceSize * i,
-        isLower: result <= choiceSize * (i + 1),
-        toDegrees: convertPercentageToDegrees(choiceValue),
-      });
-
       if (result >= choiceSize * i && result <= choiceSize * (i + 1)) {
         return choices[i];
       }
@@ -95,7 +87,9 @@ export const WheelView = ({choices}) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.picker} />
+      <View style={styles.pinContainer}>
+        <PinIcon color="#C2FFD9" size={40} />
+      </View>
       <TouchableOpacity onPress={getAnswer}>
         <Animated.View
           style={{
@@ -121,10 +115,17 @@ export const WheelView = ({choices}) => {
                     strokeDasharray={[dash, circumference - dash]}
                   />
 
-                  <SVGText fill="black" fontSize={2}>
-                    <TextPath xlinkHref={`#${id}`} textAnchor="middle">
-                      {choice}
-                    </TextPath>
+                  <SVGText
+                    fill="#FFF"
+                    fontSize={1.5}
+                    x="10%"
+                    transform={`translate(15.5 15.5) rotate(${
+                      circlePercentage * 2
+                    })`}
+                    textAnchor="start"
+                    fontWeight="bold"
+                    alignmentBaseline="middle">
+                    {choice}
                   </SVGText>
                 </G>
               );
@@ -145,18 +146,15 @@ const styles = StyleSheet.create({
     marginVertical: 30,
   },
   svgRoot: {
-    height: 300,
-    width: 300,
+    height: 350,
+    width: 350,
     backgroundColor: 'transparent',
     borderRadius: 100,
     overflow: 'hidden',
   },
-  picker: {
-    width: 10,
-    height: 50,
+  pinContainer: {
     position: 'relative',
     bottom: -50,
     zIndex: 2,
-    backgroundColor: '#FFF',
   },
 });
