@@ -30,10 +30,11 @@ const App = () => {
               component={ParamView}
               options={{
                 headerTitle: () => (
-                  <Text style={{color: '#FFF'}}>Set your choices</Text>
+                  <Text style={{color: '#FFF', fontSize: 20, marginLeft: 8}}>
+                    Set your choices
+                  </Text>
                 ),
-                headerBackVisible: true,
-                headerBackTitleVisible: true,
+                headerBackVisible: false,
                 headerStyle: {backgroundColor: '#E14242'},
               }}
             />

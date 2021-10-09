@@ -6,14 +6,21 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableNativeFeedback,
   View,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useLayoutEffect, useCallback} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {IconButton} from './components/IconButton';
 import {BackIcon} from '../assets/BackIcon';
 import {CheckIcon} from '../assets/CheckIcon';
 import {ChoicesContext} from './context/ChoicesContext';
+import {
+  TouchableHighlight,
+  TouchableOpacity,
+} from 'react-native-gesture-handler';
+import {DeleteIcon} from '../assets/DeleteIcon';
+import {TouchablePlatform} from './components/TouchablePlatform';
 
 interface Props {
   navigation: any;
@@ -25,28 +32,38 @@ const ParamViewComponent = ({navigation, choices, setChoices}: Props) => {
   const [fields, setFields] = useState(choices); // Only used updates fields number
   const [tempChoices, setTempChoices] = useState(choices); // Keeps data editing temporarly
 
-  navigation.setOptions({
-    headerLeft: () => <></>,
-    headerRight: () => (
-      <IconButton icon={<CheckIcon color="#FFF" />} onPress={saveChoices} />
-    ),
-  });
+  const navigateBackHome = useCallback(() => {
+    navigation.navigate('Home');
+  }, [navigation]);
 
-  const saveChoices = () => {
+  const saveChoices = useCallback(() => {
     setChoices(tempChoices);
     navigateBackHome();
-    console.log('CHOICES TO SAVE', {tempChoices, fields, choices});
-  };
+    // console.log('CHOICES TO SAVE', choices);
+  }, [setChoices, tempChoices, navigateBackHome]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerMode: 'float',
+      headerLeft: () => (
+        <IconButton
+          onPress={navigateBackHome}
+          icon={<BackIcon color="#FFF" />}
+        />
+      ),
+      headerRight: () => (
+        <IconButton onPress={saveChoices} icon={<CheckIcon color="#FFF" />} />
+      ),
+    });
+  }, [navigation, saveChoices, navigateBackHome]);
 
   const updateField = (value: string, index: number) => {
     const newChoices = [...tempChoices];
     newChoices[index] = value;
     setTempChoices(newChoices);
-    console.log('UPDATING FIELD', newChoices);
   };
 
   const addField = () => {
-    console.log('add field', {tempChoices, fields});
     const newChoices = [...tempChoices, ''];
     setFields(newChoices);
     setTempChoices(newChoices);
@@ -57,13 +74,6 @@ const ParamViewComponent = ({navigation, choices, setChoices}: Props) => {
     newChoices.splice(index, 1);
     setFields([...newChoices]);
     setTempChoices(newChoices);
-    console.log('NEW TEMP CHOICES', {tempChoices, fields});
-  };
-
-  const navigateBackHome = () => {
-    console.log('BACK TO HOME');
-
-    navigation.navigate('Home');
   };
 
   return (
@@ -76,28 +86,52 @@ const ParamViewComponent = ({navigation, choices, setChoices}: Props) => {
         <Text style={styles.headerTitle}>Set choices</Text>
         <IconButton icon={<CheckIcon color="#FFF" />} onPress={saveChoices} />
       </View> */}
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <Text>Inscris tes choix ici:</Text>
-        <ScrollView keyboardDismissMode="interactive">
-          {fields.map((choice: string, index: number) => (
-            <View key={`${choice}${index}`} style={styles.fieldContainer}>
-              <Text>Choix {index + 1}: </Text>
-              <TextInput
-                style={styles.field}
-                defaultValue={choice}
-                onChangeText={value => updateField(value, index)}
-                placeholder="Type your choice"
-              />
-              <Button title="Supprimer" onPress={() => removeField(index)} />
-            </View>
-          ))}
-        </ScrollView>
-
-        <Button title="Ajouter un choix" onPress={addField} />
-        <Button title="Enregistrer mes choix" onPress={saveChoices} />
-      </KeyboardAvoidingView>
+      <View style={{flex: 1}}>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <Text
+            style={{
+              fontSize: 20,
+              color: '#FFF',
+              fontWeight: '500',
+              marginVertical: 24,
+            }}>
+            Your Choices
+          </Text>
+          <ScrollView keyboardDismissMode="interactive">
+            {fields.map((choice: string, index: number) => (
+              <View key={`${choice}${index}`} style={styles.fieldContainer}>
+                <TextInput
+                  style={styles.field}
+                  defaultValue={choice}
+                  onChangeText={value => updateField(value, index)}
+                  placeholder="Type your choice"
+                />
+                <IconButton
+                  icon={<DeleteIcon color="#212121" />}
+                  onPress={() => removeField(index)}
+                />
+              </View>
+            ))}
+          </ScrollView>
+          <TouchablePlatform
+            onPress={() => addField()}
+            style={{
+              backgroundColor: '#8bdcaa',
+              height: 60,
+              width: 60,
+              borderRadius: 30,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Text style={{fontSize: 40, fontWeight: 'bold', color: '#FFF'}}>
+              +
+            </Text>
+          </TouchablePlatform>
+        </KeyboardAvoidingView>
+      </View>
+      <Button title="Enregistrer mes choix" onPress={saveChoices} />
     </SafeAreaView>
   );
 };
@@ -137,7 +171,8 @@ const styles = StyleSheet.create({
   },
   container: {
     marginTop: 15,
-    height: 300,
+    height: 600,
+    alignItems: 'center',
   },
   fieldContainer: {
     flexDirection: 'row',
@@ -147,7 +182,7 @@ const styles = StyleSheet.create({
   field: {
     borderWidth: 1,
     padding: 4,
-    minWidth: 150,
+    width: 300,
     color: '#212121',
     backgroundColor: '#FFF',
   },
