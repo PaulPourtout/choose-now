@@ -1,5 +1,4 @@
 import {
-  Alert,
   Animated,
   Easing,
   StyleSheet,
@@ -8,16 +7,16 @@ import {
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import Svg, {Circle, G, Text as SVGText} from 'react-native-svg';
-import {PinIcon} from './PinIcon';
+import {PinIcon} from '../assets/PinIcon';
 
 const WHEEL_COLORS = [
-  '#F9B208',
   '#FFD371',
   '#9DDAC6',
+  '#F9B208',
   '#FF449F',
   '#005F99',
-  '#9DDAC6',
   '#FFD371',
+  '#9DDAC6',
   '#F9B208',
   '#FFF5B7',
   '#C2FFD9',
@@ -27,7 +26,11 @@ const WHEEL_COLORS = [
   '#FFD371',
 ];
 
-export const WheelView = ({choices}) => {
+interface Props {
+  choices: string[];
+}
+
+export const WheelView = ({choices}: Props) => {
   const size = 32;
   const center = size / 2;
   const strokeWidth = center - 2;
@@ -38,6 +41,7 @@ export const WheelView = ({choices}) => {
   const convertPercentageToDegrees = (percent: number): number =>
     360 * (percent / 100);
   const [choiceValue, setChoiceValue] = useState(0);
+  const [isAnimationEnabled, setIsAnimationEnabled] = useState(false);
 
   // Animation
   let rotateAnimation = useRef(new Animated.Value(0));
@@ -65,37 +69,42 @@ export const WheelView = ({choices}) => {
     return Math.floor(Math.random() * 100);
   };
 
-  const getAnswer = () => {
+  const handleLaunchLottery = () => {
     resetAnimaton();
-    setChoiceValue(generateRandomNumber());
-    handleAnimation(choiceValue);
+    setIsAnimationEnabled(true);
+    const newValue = generateRandomNumber();
+    handleAnimation(newValue);
+    setChoiceValue(newValue);
     setTimeout(() => {
-      const winner = checkWinningChoice(choiceValue);
-      Alert.alert(`winner IS`, `winner: ${winner}`);
-    });
+      // const winner = checkWinningChoice(choiceValue);
+      // Alert.alert(`winner IS`, `winner: ${winner}`);
+      setIsAnimationEnabled(false);
+    }, 5000);
   };
 
-  const checkWinningChoice = (result: number): string | null => {
-    const choiceSize = 100 / choices.length;
-    for (let i = 0; i <= choices.length; i++) {
-      if (result >= choiceSize * i && result <= choiceSize * (i + 1)) {
-        return choices[i];
-      }
-    }
-    return null;
-  };
+  // const checkWinningChoice = (result: number): string | null => {
+  //   const choiceSize = 100 / choices.length;
+  //   for (let i = 0; i <= choices.length; i++) {
+  //     if (result >= choiceSize * i && result <= choiceSize * (i + 1)) {
+  //       return choices[i];
+  //     }
+  //   }
+  //   return null;
+  // };
 
   return (
     <View style={styles.container}>
       <View style={styles.pinContainer}>
         <PinIcon color="#C2FFD9" size={40} />
       </View>
-      <TouchableOpacity onPress={getAnswer}>
-        <Animated.View
-          style={{
-            ...styles.svgContainer,
-            transform: [{rotate: interpolateRotating}],
-          }}>
+      <Animated.View
+        style={{
+          ...styles.svgContainer,
+          transform: [{rotate: interpolateRotating}],
+        }}>
+        <TouchableOpacity
+          onPress={handleLaunchLottery}
+          disabled={isAnimationEnabled}>
           <Svg viewBox={`0 0 ${size} ${size}`} style={styles.svgRoot}>
             {choices.map((choice: string, index: number) => {
               const id = `${choice}-${index}`;
@@ -119,8 +128,8 @@ export const WheelView = ({choices}) => {
                     fill="#FFF"
                     fontSize={1.5}
                     x="10%"
-                    transform={`translate(15.5 15.5) rotate(${
-                      circlePercentage * 2
+                    transform={`translate(15.75 16.75) rotate(${
+                      convertPercentageToDegrees(circlePercentage) / 2
                     })`}
                     textAnchor="start"
                     fontWeight="bold"
@@ -130,9 +139,18 @@ export const WheelView = ({choices}) => {
                 </G>
               );
             })}
+
+            <Circle cx={center} cy={center} r={3} fill="#f97808" />
+            <Circle
+              cx={center}
+              cy={center}
+              r={center - 0.5 / 2}
+              strokeWidth={0.5}
+              stroke="#ff9c32"
+            />
           </Svg>
-        </Animated.View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 };

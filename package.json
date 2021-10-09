@@ -8,13 +8,22 @@
     "start": "react-native start",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "android-bundle": "npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle && cd android && ./gradlew assembleRelease"
+    "android-bundle": "npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle && cd android && ./gradlew assembleRelease && open android/app/build/outputs/apk/release"
   },
   "dependencies": {
+    "@react-native-community/masked-view": "^0.1.11",
+    "@react-navigation/native": "^6.0.4",
+    "@react-navigation/native-stack": "^6.2.2",
     "d3": "^7.0.1",
     "react": "17.0.2",
     "react-native": "0.65.1",
-    "react-native-svg": "^12.1.1"
+    "react-native-gesture-handler": "^1.10.3",
+    "react-native-reanimated": "^2.2.2",
+    "react-native-safe-area-context": "^3.3.2",
+    "react-native-safe-area-view": "react-native-community/react-native-safe-area-view",
+    "react-native-screens": "^3.8.0",
+    "react-native-svg": "^12.1.1",
+    "react-navigation-stack": "^2.10.4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
