@@ -1,6 +1,7 @@
 import {
   Animated,
   Easing,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   View,
@@ -127,10 +128,13 @@ export const WheelView = ({choices}: Props) => {
                   <SVGText
                     fill="#FFF"
                     fontSize={1.5}
-                    x="10%"
-                    transform={`translate(15.75 16.75) rotate(${
+                    x="7%"
+                    transform={`translate(15.75 15.5) rotate(${
                       convertPercentageToDegrees(circlePercentage) / 2
                     })`}
+                    fontFamily={
+                      Platform.OS === 'ios' ? 'San fransisco' : 'monospace'
+                    }
                     textAnchor="start"
                     fontWeight="bold"
                     alignmentBaseline="middle">
@@ -140,7 +144,13 @@ export const WheelView = ({choices}: Props) => {
               );
             })}
 
-            <Circle cx={center} cy={center} r={3} fill="#f97808" />
+            <Circle
+              cx={center}
+              cy={center}
+              r={2}
+              strokeWidth={0.5}
+              stroke="#f97808"
+            />
             <Circle
               cx={center}
               cy={center}
