@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const ChoicesContext = React.createContext({
-  choices: ['Yes', 'No'],
+  choices: [''],
   setChoices(newChoices: string[]) {
     this.choices = [...newChoices];
   },
