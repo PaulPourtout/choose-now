@@ -1,9 +1,10 @@
-import {View, Text, StyleSheet, Button} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import React, {useState} from 'react';
 import {WheelView} from './WheelView';
 import {ParamView} from './ParamView';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ChoicesContext} from './context/ChoicesContext';
+import {Button} from './components/Button';
 
 export const MainView = ({navigation}) => {
   return (
@@ -22,7 +23,6 @@ export const MainView = ({navigation}) => {
           title="Set your choices"
         />
       </View>
-      {/* <ParamView choices={choices} handleChoicesUpdate={setChoices} /> */}
     </SafeAreaView>
   );
 };

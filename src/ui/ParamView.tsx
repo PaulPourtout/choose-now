@@ -1,26 +1,36 @@
-import {
-  Button,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableNativeFeedback,
-  View,
-} from 'react-native';
-import React, {useState, useLayoutEffect, useCallback} from 'react';
+import {StyleSheet, View} from 'react-native';
+import React, {useLayoutEffect, useCallback} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {IconButton} from './components/IconButton';
-import {BackIcon} from '../assets/BackIcon';
-import {CheckIcon} from '../assets/CheckIcon';
+import {BackIcon} from './components/icons/BackIcon';
+import {CheckIcon} from './components/icons/CheckIcon';
 import {ChoicesContext} from './context/ChoicesContext';
-import {
-  TouchableHighlight,
-  TouchableOpacity,
-} from 'react-native-gesture-handler';
-import {DeleteIcon} from '../assets/DeleteIcon';
-import {TouchablePlatform} from './components/TouchablePlatform';
+import {Button} from './components/Button';
+import {Form} from './components/ParamView/Form';
+import {DropDown} from './components/DropDown';
+
+const PRESETS = [
+  {
+    label: '1',
+    data: ['1', 'no'],
+  },
+  {
+    label: '2',
+    data: ['2', 'no'],
+  },
+  {
+    label: '3',
+    data: ['3', 'no'],
+  },
+  {
+    label: '4',
+    data: ['4', 'no'],
+  },
+  {
+    label: '5',
+    data: ['5', 'no'],
+  },
+];
 
 interface Props {
   navigation: any;
@@ -29,22 +39,19 @@ interface Props {
 }
 
 const ParamViewComponent = ({navigation, choices, setChoices}: Props) => {
-  const [fields, setFields] = useState(choices); // Only used updates fields number
-  const [tempChoices, setTempChoices] = useState(choices); // Keeps data editing temporarly
+  let tempData: string[] = choices;
 
   const navigateBackHome = useCallback(() => {
     navigation.navigate('Home');
   }, [navigation]);
 
   const saveChoices = useCallback(() => {
-    setChoices(tempChoices);
+    setChoices(tempData);
     navigateBackHome();
-    // console.log('CHOICES TO SAVE', choices);
-  }, [setChoices, tempChoices, navigateBackHome]);
+  }, [setChoices, tempData, navigateBackHome]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerMode: 'float',
       headerLeft: () => (
         <IconButton
           onPress={navigateBackHome}
@@ -57,81 +64,29 @@ const ParamViewComponent = ({navigation, choices, setChoices}: Props) => {
     });
   }, [navigation, saveChoices, navigateBackHome]);
 
-  const updateField = (value: string, index: number) => {
-    const newChoices = [...tempChoices];
-    newChoices[index] = value;
-    setTempChoices(newChoices);
-  };
-
-  const addField = () => {
-    const newChoices = [...tempChoices, ''];
-    setFields(newChoices);
-    setTempChoices(newChoices);
-  };
-
-  const removeField = (index: number) => {
-    const newChoices = [...tempChoices];
-    newChoices.splice(index, 1);
-    setFields([...newChoices]);
-    setTempChoices(newChoices);
+  const handleUpdateData = (data: string[]) => {
+    tempData = data;
   };
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-      {/* <View style={styles.header}>
-        <IconButton
-          icon={<BackIcon color="#FFF" />}
-          onPress={navigateBackHome}
-        />
-        <Text style={styles.headerTitle}>Set choices</Text>
-        <IconButton icon={<CheckIcon color="#FFF" />} onPress={saveChoices} />
-      </View> */}
       <View style={{flex: 1}}>
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <Text
-            style={{
-              fontSize: 20,
-              color: '#FFF',
-              fontWeight: '500',
-              marginVertical: 24,
-            }}>
-            Your Choices
-          </Text>
-          <ScrollView keyboardDismissMode="interactive">
-            {fields.map((choice: string, index: number) => (
-              <View key={`${choice}${index}`} style={styles.fieldContainer}>
-                <TextInput
-                  style={styles.field}
-                  defaultValue={choice}
-                  onChangeText={value => updateField(value, index)}
-                  placeholder="Type your choice"
-                />
-                <IconButton
-                  icon={<DeleteIcon color="#212121" />}
-                  onPress={() => removeField(index)}
-                />
-              </View>
-            ))}
-          </ScrollView>
-          <TouchablePlatform
-            onPress={() => addField()}
-            style={{
-              backgroundColor: '#8bdcaa',
-              height: 60,
-              width: 60,
-              borderRadius: 30,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-            <Text style={{fontSize: 40, fontWeight: 'bold', color: '#FFF'}}>
-              +
-            </Text>
-          </TouchablePlatform>
-        </KeyboardAvoidingView>
+        <View style={{zIndex: 200}}>
+          <View style={{alignItems: 'center'}}>
+            <DropDown
+              label="Find idea presets"
+              onChange={(preset: string[]) => setChoices(preset)}
+              data={PRESETS}
+            />
+          </View>
+        </View>
+        <Form data={choices} updateData={handleUpdateData} />
       </View>
-      <Button title="Enregistrer mes choix" onPress={saveChoices} />
+      <Button
+        title="Enregistrer mes choix"
+        onPress={saveChoices}
+        style={styles.saveButton}
+      />
     </SafeAreaView>
   );
 };
@@ -165,25 +120,9 @@ const styles = StyleSheet.create({
     padding: 16,
     flex: 1,
   },
-  iconButton: {},
-  iconButtonText: {
-    color: '#FFF',
-  },
-  container: {
-    marginTop: 15,
-    height: 600,
-    alignItems: 'center',
-  },
-  fieldContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 4,
-  },
-  field: {
-    borderWidth: 1,
-    padding: 4,
-    width: 300,
-    color: '#212121',
-    backgroundColor: '#FFF',
+  saveButton: {
+    width: 250,
+    marginVertical: 42,
+    alignSelf: 'center',
   },
 });

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import Svg, {Circle, G, Text as SVGText} from 'react-native-svg';
-import {PinIcon} from '../assets/PinIcon';
+import {PinIcon} from './components/icons/PinIcon';
 
 const WHEEL_COLORS = [
   '#FFD371',
@@ -19,7 +19,7 @@ const WHEEL_COLORS = [
   '#FFD371',
   '#9DDAC6',
   '#F9B208',
-  '#FFF5B7',
+  '#FFD371',
   '#C2FFD9',
   '#FF449F',
   '#005F99',
@@ -58,9 +58,9 @@ export const WheelView = ({choices}: Props) => {
 
   const handleAnimation = (toValue: number) => {
     Animated.timing(rotateAnimation.current, {
-      toValue: toValue / 100 + 10,
+      toValue: toValue / 100 + 15,
       duration: 5000,
-      easing: Easing.out(Easing.exp),
+      easing: Easing.out(Easing.circle),
       useNativeDriver: true,
     }).start();
   };
@@ -78,7 +78,6 @@ export const WheelView = ({choices}: Props) => {
     setChoiceValue(newValue);
     setTimeout(() => {
       // const winner = checkWinningChoice(choiceValue);
-      // Alert.alert(`winner IS`, `winner: ${winner}`);
       setIsAnimationEnabled(false);
     }, 5000);
   };
@@ -128,13 +127,11 @@ export const WheelView = ({choices}: Props) => {
                   <SVGText
                     fill="#FFF"
                     fontSize={1.5}
-                    x="7%"
-                    transform={`translate(15.75 15.5) rotate(${
+                    x={3}
+                    transform={`translate(15.75 16.25) rotate(${
                       convertPercentageToDegrees(circlePercentage) / 2
                     })`}
-                    fontFamily={
-                      Platform.OS === 'ios' ? 'San fransisco' : 'monospace'
-                    }
+                    fontFamily={Platform.OS === 'ios' ? 'System' : 'monospace'}
                     textAnchor="start"
                     fontWeight="bold"
                     alignmentBaseline="middle">

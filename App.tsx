@@ -6,13 +6,11 @@ import {ParamView} from './src/ui/ParamView';
 import 'react-native-gesture-handler';
 import {ChoicesContext} from './src/ui/context/ChoicesContext';
 import {Text} from 'react-native';
-import {IconButton} from './src/ui/components/IconButton';
-import {CheckIcon} from './src/assets/CheckIcon';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  const [choices, setChoices] = useState(['Yes', 'No']);
+  const [choices, setChoices] = useState(['No', 'Yes']);
 
   return (
     <NavigationContainer>
