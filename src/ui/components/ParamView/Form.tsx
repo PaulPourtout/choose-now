@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import {DeleteIcon} from '../icons/DeleteIcon';
+import {AddIcon} from '../icons/AddIcon';
 import {IconButton} from '../IconButton';
-import {TouchablePlatform} from '../TouchablePlatform';
 
 interface Props {
   data: string[];
@@ -57,32 +57,50 @@ export const Form = ({data, updateData}: Props) => {
       <Text style={styles.sectionTitle}>Your Choices</Text>
       <ScrollView keyboardDismissMode="interactive">
         {fields.map((choice: string, index: number) => (
-          <View key={`${choice}${index}`} style={styles.fieldContainer}>
-            <TextInput
-              style={styles.field}
-              defaultValue={choice}
-              onChangeText={value => handleOnChangeField(value, index)}
-              placeholder="Type your choice"
-            />
-            <IconButton
-              icon={<DeleteIcon color="#212121" />}
-              onPress={() => removeField(index)}
-            />
-          </View>
+          <Field
+            key={`${choice}${index}`}
+            updateField={value => handleOnChangeField(value, index)}
+            removeField={() => removeField(index)}
+            defaultValue={choice}
+          />
         ))}
       </ScrollView>
-      <TouchablePlatform onPress={() => addField()} style={styles.addButton}>
-        {/* TODO: Replace text with icon */}
-        <Text style={{fontSize: 40, fontWeight: 'bold', color: '#FFF'}}>+</Text>
-      </TouchablePlatform>
+      <IconButton
+        style={styles.addButton}
+        icon={<AddIcon color="#FFF" size={40} />}
+        onPress={addField}
+      />
     </KeyboardAvoidingView>
   );
 };
 
+interface FieldProps {
+  updateField: (value: string) => void;
+  removeField: () => void;
+  defaultValue: string;
+}
+
+const Field = ({updateField, removeField, defaultValue}: FieldProps) => (
+  <View style={styles.fieldContainer}>
+    <TextInput
+      style={styles.field}
+      defaultValue={defaultValue}
+      onChangeText={updateField}
+      placeholder="Type your choice"
+    />
+    <IconButton
+      style={styles.fieldIcon}
+      icon={<DeleteIcon color="#212121" />}
+      onPress={removeField}
+    />
+  </View>
+);
+
 const styles = StyleSheet.create({
   container: {
     marginTop: 15,
-    height: 350,
+    // maxHeight: 450,
+    flex: 1,
     alignItems: 'center',
   },
   sectionTitle: {
@@ -99,14 +117,25 @@ const styles = StyleSheet.create({
   field: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 4,
+    borderTopLeftRadius: 4,
+    borderBottomLeftRadius: 4,
     width: 300,
+    height: 42,
     color: '#212121',
     backgroundColor: '#FFF',
     borderWidth: 1,
     borderColor: '#6C6C6C',
+    borderRightWidth: 0,
+  },
+  fieldIcon: {
+    borderWidth: 1,
+    borderColor: '#805a00',
+    backgroundColor: '#F9B208',
+    borderBottomRightRadius: 4,
+    borderTopRightRadius: 4,
   },
   addButton: {
+    marginTop: 8,
     backgroundColor: '#F9B208',
     height: 60,
     width: 60,

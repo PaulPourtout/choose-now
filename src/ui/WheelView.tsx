@@ -16,15 +16,14 @@ const WHEEL_COLORS = [
   '#F9B208',
   '#FF449F',
   '#005F99',
-  '#FFD371',
   '#9DDAC6',
-  '#F9B208',
   '#FFD371',
   '#C2FFD9',
+  '#F9B208',
+  '#FFD371',
   '#FF449F',
   '#005F99',
   '#9DDAC6',
-  '#FFD371',
 ];
 
 interface Props {

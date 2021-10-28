@@ -1,5 +1,5 @@
 import {StyleSheet, View} from 'react-native';
-import React, {useLayoutEffect, useCallback} from 'react';
+import React, {useLayoutEffect, useCallback, useState, useEffect} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {IconButton} from './components/IconButton';
 import {BackIcon} from './components/icons/BackIcon';
@@ -8,29 +8,30 @@ import {ChoicesContext} from './context/ChoicesContext';
 import {Button} from './components/Button';
 import {Form} from './components/ParamView/Form';
 import {DropDown} from './components/DropDown';
+import {presetStore} from '../data/presetStore';
 
-const PRESETS = [
-  {
-    label: '1',
-    data: ['1', 'no'],
-  },
-  {
-    label: '2',
-    data: ['2', 'no'],
-  },
-  {
-    label: '3',
-    data: ['3', 'no'],
-  },
-  {
-    label: '4',
-    data: ['4', 'no'],
-  },
-  {
-    label: '5',
-    data: ['5', 'no'],
-  },
-];
+// const PRESETS = [
+//   {
+//     label: 'Yes/No',
+//     data: ['No', 'Yes'],
+//   },
+//   {
+//     label: 'Restaurant',
+//     data: ['Italian', 'Bobun', 'Chinese', 'Burger', 'Jap'],
+//   },
+//   {
+//     label: 'Activities',
+//     data: ['Cinema', 'Walk', 'Art expo', 'Drink'],
+//   },
+//   {
+//     label: 'Music',
+//     data: ['Rock', 'Blues', 'Rap', 'Pop'],
+//   },
+//   {
+//     label: "Who's the boss ?",
+//     data: ['You'],
+//   },
+// ];
 
 interface Props {
   navigation: any;
@@ -40,6 +41,19 @@ interface Props {
 
 const ParamViewComponent = ({navigation, choices, setChoices}: Props) => {
   let tempData: string[] = choices;
+  let [presets, setPresets] = useState([]);
+
+  useEffect(() => {
+    getPresets();
+  }, []);
+
+  const getPresets = async () => {
+    if (presets.length === 0) {
+      const preset = await presetStore.getAllPresets();
+      setPresets(preset);
+      console.log('PRESETS', preset);
+    }
+  };
 
   const navigateBackHome = useCallback(() => {
     navigation.navigate('Home');
@@ -70,23 +84,28 @@ const ParamViewComponent = ({navigation, choices, setChoices}: Props) => {
 
   return (
     <SafeAreaView style={styles.mainContainer}>
-      <View style={{flex: 1}}>
-        <View style={{zIndex: 200}}>
-          <View style={{alignItems: 'center'}}>
+      <View style={{zIndex: 2, alignItems: 'center'}}>
+        {presets.length > 0 && (
+          <View>
             <DropDown
               label="Find idea presets"
               onChange={(preset: string[]) => setChoices(preset)}
-              data={PRESETS}
+              data={presets}
             />
+            <Button title="clear presets" onPress={presetStore.clearPresets} />
           </View>
-        </View>
+        )}
+      </View>
+      <View style={{flex: 1}}>
         <Form data={choices} updateData={handleUpdateData} />
       </View>
-      <Button
-        title="Enregistrer mes choix"
-        onPress={saveChoices}
-        style={styles.saveButton}
-      />
+      <View>
+        <Button
+          title="Enregistrer mes choix"
+          onPress={saveChoices}
+          style={styles.saveButton}
+        />
+      </View>
     </SafeAreaView>
   );
 };

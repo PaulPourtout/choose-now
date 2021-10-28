@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {View, StyleSheet, Text, FlatList} from 'react-native';
+import {ArrowDownIcon} from './icons/ArrowDownIcon';
 import {TouchablePlatform} from './TouchablePlatform';
 
 interface DropDownData<T> {
@@ -30,7 +31,10 @@ export function DropDown<T>({data, onChange, label}: Props<T>) {
       {label && <Text style={styles.label}>{label}</Text>}
       <TouchablePlatform onPress={handleToggleClose}>
         <View style={[styles.choiceWrapper, styles.currentChoiceBox]}>
-          <Text>{data[currentItem].label}</Text>
+          <Text style={styles.currentChoiceBoxLabel}>
+            {data[currentItem].label}
+          </Text>
+          <ArrowDownIcon size={24} color="#000" />
         </View>
       </TouchablePlatform>
       {!closed && (
@@ -67,10 +71,15 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   currentChoiceBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#FFF',
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#6C6C6C',
+  },
+  currentChoiceBoxLabel: {
+    flex: 1,
   },
   choicesContainer: {
     position: 'absolute',
