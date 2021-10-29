@@ -8,30 +8,7 @@ import {ChoicesContext} from './context/ChoicesContext';
 import {Button} from './components/Button';
 import {Form} from './components/ParamView/Form';
 import {DropDown} from './components/DropDown';
-import {presetStore} from '../data/presetStore';
-
-// const PRESETS = [
-//   {
-//     label: 'Yes/No',
-//     data: ['No', 'Yes'],
-//   },
-//   {
-//     label: 'Restaurant',
-//     data: ['Italian', 'Bobun', 'Chinese', 'Burger', 'Jap'],
-//   },
-//   {
-//     label: 'Activities',
-//     data: ['Cinema', 'Walk', 'Art expo', 'Drink'],
-//   },
-//   {
-//     label: 'Music',
-//     data: ['Rock', 'Blues', 'Rap', 'Pop'],
-//   },
-//   {
-//     label: "Who's the boss ?",
-//     data: ['You'],
-//   },
-// ];
+import {presetStore, Preset} from '../data/presetStore';
 
 interface Props {
   navigation: any;
@@ -40,8 +17,8 @@ interface Props {
 }
 
 const ParamViewComponent = ({navigation, choices, setChoices}: Props) => {
-  let tempData: string[] = choices;
-  let [presets, setPresets] = useState([]);
+  let [tempData, setTempData] = useState(choices);
+  let [presets, setPresets] = useState<Preset[]>([]);
 
   useEffect(() => {
     getPresets();
@@ -50,8 +27,10 @@ const ParamViewComponent = ({navigation, choices, setChoices}: Props) => {
   const getPresets = async () => {
     if (presets.length === 0) {
       const preset = await presetStore.getAllPresets();
-      setPresets(preset);
-      console.log('PRESETS', preset);
+      if (Array.isArray(preset)) {
+        setPresets(preset);
+        console.log('PRESETS IN PARAMS', preset);
+      }
     }
   };
 
@@ -82,22 +61,40 @@ const ParamViewComponent = ({navigation, choices, setChoices}: Props) => {
     tempData = data;
   };
 
+  const saveCurrentChoicesAsPreset = async () => {
+    const newPreset: Preset = {
+      label: 'New Preset', //TODO:  ADD dialog modal to let user add label,
+      data: tempData,
+    };
+
+    const savedPreset = await presetStore.savePreset(newPreset);
+    if (savedPreset) {
+      setPresets([...presets, savedPreset]);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.mainContainer}>
       <View style={{zIndex: 2, alignItems: 'center'}}>
         {presets.length > 0 && (
-          <View>
-            <DropDown
-              label="Find idea presets"
-              onChange={(preset: string[]) => setChoices(preset)}
-              data={presets}
+          <>
+            <View style={{zIndex: 2, alignItems: 'center'}}>
+              <DropDown
+                label="Find idea presets"
+                onChange={(preset: string[]) => setTempData(preset)}
+                data={presets}
+              />
+            </View>
+            <Button
+              title="clear presets"
+              onPress={() => presetStore.clearPresets()}
             />
-            <Button title="clear presets" onPress={presetStore.clearPresets} />
-          </View>
+          </>
         )}
       </View>
       <View style={{flex: 1}}>
-        <Form data={choices} updateData={handleUpdateData} />
+        <Button title="Save as preset" onPress={saveCurrentChoicesAsPreset} />
+        <Form data={tempData} updateData={handleUpdateData} />
       </View>
       <View>
         <Button

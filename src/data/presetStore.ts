@@ -1,38 +1,39 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import uuid from 'uuidv4';
+import uuidv4 from 'uuidv4';
 
 export interface Preset {
   uuid?: string;
   label: string;
-  choices: string[];
+  data: string[];
 }
 
 const PRESETS: Preset[] = [
   {
     label: 'Yes/No',
-    choices: ['No', 'Yes'],
+    data: ['No', 'Yes'],
   },
   {
     label: 'Restaurant',
-    choices: ['Italian', 'Bobun', 'Chinese', 'Burger', 'Jap'],
+    data: ['Italian', 'Bobun', 'Chinese', 'Burger', 'Jap'],
   },
   {
     label: 'Activities',
-    choices: ['Cinema', 'Walk', 'Art expo', 'Drink'],
+    data: ['Cinema', 'Walk', 'Art expo', 'Drink'],
   },
   {
     label: 'Music',
-    choices: ['Rock', 'Blues', 'Rap', 'Pop'],
+    data: ['Rock', 'Blues', 'Rap', 'Pop'],
   },
   {
     label: "Who's the boss ?",
-    choices: ['You'],
+    data: ['You'],
   },
 ];
 
 class PresetStore {
   presetStore: PresetStore | undefined;
-  prefix = "@preset_";
+  prefix = "@preset";
+  separator = "_";
 
   constructor() {
     this.initialize();
@@ -40,18 +41,22 @@ class PresetStore {
 
   private async initialize() {
     console.log('INIT Preset Store');
-    try {
-      for await (let preset of PRESETS) {
-        await this.savePreset(preset);
-      }
-    } catch (error) {
-      console.log("ERROR CREATING PRESETS", error);
+    const existingPresets = await this.getAllPresets();
 
+    if (!existingPresets || existingPresets.length === 0) {
+      try {
+        for await (let preset of PRESETS) {
+          await this.savePreset(preset);
+        }
+      } catch (error) {
+        console.log("ERROR CREATING PRESETS", error);
+      }
     }
   }
 
-  public async savePreset(presetData: Preset) {
-    const presetId = `${this.prefix}}${uuid()}`;
+  public async savePreset(presetData: Preset): Promise<Preset | null> {
+    const uuid = uuidv4();
+    const presetId = `${this.prefix}${this.separator}${uuid}`;
     console.log('SAVING PRESET');
 
     const preset = {
@@ -61,36 +66,44 @@ class PresetStore {
 
     try {
       await AsyncStorage.setItem(presetId, JSON.stringify(preset));
+      return preset;
       console.log('DID SAVE PRESET');
     } catch (error) {
       console.error('Preset not saved', error);
+      return null;
     }
   }
 
-  public async getPreset(presetId: string) {
+  public async getPreset(presetId: string): Promise<Preset | null> {
     try {
-      return AsyncStorage.getItem(presetId);
+      const item = await AsyncStorage.getItem(presetId);
+
+      return item ? JSON.parse(item) : null;
     } catch (error) {
       console.error(`Error while getting Preset ${presetId}::`, error);
+      return null;
     }
   }
 
-  public async getAllPresets() {
+  public async getAllPresets(): Promise<Preset[] | null> {
     try {
       const keys: string[] = await AsyncStorage.getAllKeys();
+      console.log("KEYS", keys);
+
       const presets = [];
 
       for await (let key of keys) {
-        const prefix = key.split('_')[0];
+        const prefix = key.split(this.separator)[0];
         if (prefix === this.prefix) {
           const preset = await this.getPreset(key);
-          !!preset && presets.push(JSON.parse(preset));
+          !!preset && presets.push(preset);
         }
       }
 
       return presets;
     } catch (error) {
       console.error('Error while getting all presets', error);
+      return null;
     }
   }
 
@@ -99,7 +112,7 @@ class PresetStore {
       const keys: string[] = await AsyncStorage.getAllKeys();
 
       for await (let key of keys) {
-        const prefix = key.split('_')[0];
+        const prefix = key.split(this.separator)[0];
         if (prefix === this.prefix) {
           await AsyncStorage.removeItem(key);
         }
